@@ -6,21 +6,21 @@ Sub InsertLaTeXEquation()
     Dim pdfPath As String
     Dim imgPath As String
 
-    ' Werte aus Excel holen
+    ' Get values from Excel
     a = Range("C2").Value
     b = Range("C3").Value
     c = a * b
     Range("C4").Value = c
 
-    ' LaTeX-Formel erstellen
+    ' Create LaTeX formula
     latexEq = "$$ c = f \cdot k = " & a & " \cdot " & b & " = " & c & " $$"
 
-    ' Dateipfade festlegen
+    ' Set file paths
     filePath = "C:\Temp\equation.tex"
     pdfPath = "C:\Temp\equation.pdf"
     imgPath = "C:\Temp\equation-1.png"
 
-    ' LaTeX-Datei erstellen
+    ' Create LaTeX file
     Open filePath For Output As #1
     Print #1, "\documentclass{article}"
     Print #1, "\usepackage{amsmath}"
@@ -29,14 +29,16 @@ Sub InsertLaTeXEquation()
     Print #1, "\end{document}"
     Close #1
 
-    ' PDF erzeugen
+    ' Create PDF 
     ' Install https://miktex.org/ and install all updates
+    ' The WaitProcess() function ensures that the Shell commands are been carried out correctly
     Call WaitForProcess("pdflatex -output-directory=C:\Temp " & filePath)
 
-    ' PDF zu PNG konvertieren mit pdftoppm
+    ' Convert PDF to PNG with pdftoppm
     ' https://www.xpdfreader.com/download.html install the xpdfreader
     Call WaitForProcess("pdftoppm -png C:\Temp\equation.pdf C:\Temp\equation")
-    
+
+    'insert image, crop and re-orientate
     Call CropImage
            
 End Sub
@@ -55,15 +57,15 @@ Sub CropImage()
     Dim cellLeft As Double, cellTop As Double
     Dim newWidth As Double, newHeight As Double
 
-    ' Position von Zelle H7 berechnen
+    ' Get position of cell B7
     cellLeft = Range("B7").Left
     cellTop = Range("B7").Top
 
-    ' Bild einfügen
+    ' Insert image
     Set pic = ActiveSheet.Shapes.AddPicture(imgPath, _
         msoFalse, msoTrue, cellLeft, cellTop, -1, -1)
 
-    ' Zuschneiden auf bestimmte Bereiche (anpassen nach Bedarf)
+    ' Crop image
     With pic.PictureFormat
         .CropLeft = 250
         .CropTop = 125
@@ -71,10 +73,11 @@ Sub CropImage()
         .CropBottom = 675
     End With
 
+    'position image
     pic.Left = cellLeft
     pic.Top = cellTop
 
-    'MsgBox "Bild erfolgreich zugeschnitten und korrekt positioniert!", vbInformation
+    'MsgBox "Image successfully cropped and correctly positioned!", vbInformation
 End Sub
 
 
